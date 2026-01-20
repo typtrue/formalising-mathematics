@@ -1,17 +1,12 @@
 import Mathlib.Tactic
 
--- Bolzano-Weierstrauss for (xₙ) in ℝ
+-- Monotone convergence theorem
 
-def is_peak (a : ℕ → ℝ) (n : ℕ) :=
-  ∀ (m : ℕ) > n, a m ≤ a n
-
-def has_limit () :=
+def is_monotone :=
   sorry
 
--- todo figure out how to make a subsequence + setup sequences
--- properly.
--- maybe ask on edstem / go to office hour if there is one
-theorem bolzano_weierstrauss (a : ℕ → ℝ) : ∃ (i : ℕ → ℕ),
-    by {
+def is_bounded :=
   sorry
-}
+
+
+theorem monotone_conv
