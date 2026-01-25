@@ -96,5 +96,6 @@ theorem monotone_conv (a : ℕ → ℝ) (hBM : is_bounded_monotone a) : is_conve
     rcases hInc with ⟨hMono, hBound⟩
     sorry
   | inr hDec =>
+    rcases hDec with ⟨hMono, hBound⟩
     sorry
 }
