@@ -57,7 +57,7 @@ def is_infimum (a : ℕ → ℝ) (x : ℝ) : Prop :=
   ∀ (K : ℝ), is_lower_bound a K → K ≤ x
 
 /-- lets us use `rw limit_def` to replace `is_limit a L` with `∀ ε > 0, ∃ (N : ℕ), ...` -/
-theorem limit_def (a : ℕ → ℝ) (L : ℝ) :
+lemma limit_def (a : ℕ → ℝ) (L : ℝ) :
   is_limit a L ↔ ∀ ε > 0, ∃ (N : ℕ), ∀ n > N, |a n - L| < ε := by rfl
 
 /-
@@ -65,11 +65,13 @@ here we assume the completeness of ℝ, which we would otherwise
 have to construct using Dedekind cuts
 -/
 
-/-- Any sequence in ℝ that is bounded above has a supremum in ℝ. (Taken as axiom of ℝ) -/
+/-- Any sequence in ℝ that is bounded above has a supremum in ℝ.
+Taken as an axiom of ℝ due to completeness. -/
 axiom bounded_above_has_supremum (a : ℕ → ℝ) :
   is_bounded_above a → ∃ (s : ℝ), is_supremum a s
 
-/-- Any sequence in ℝ that is bounded below has an infimum in ℝ. (Taken as axiom of ℝ) -/
+/-- Any sequence in ℝ that is bounded below has an infimum in ℝ.
+Taken as an axiom of ℝ due to completeness. -/
 axiom bounded_above_has_infimum (a : ℕ → ℝ):
   is_bounded_below a → ∃ (s : ℝ), is_infimum a s
 
@@ -91,10 +93,8 @@ theorem monotone_conv (a : ℕ → ℝ) (hBM : is_bounded_monotone a) : is_conve
   -- separate into monotone increasing and decreasing cases
   cases hBM with
   | inl hInc =>
-    -- monotone increasing case
     rcases hInc with ⟨hMono, hBound⟩
     sorry
   | inr hDec =>
-    -- monotone decreasing case
     sorry
 }
