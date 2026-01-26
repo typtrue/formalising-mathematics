@@ -42,9 +42,17 @@ def is_bounded_monotone (a : ℕ → ℝ) : Prop :=
 def is_limit (a : ℕ → ℝ) (L : ℝ) : Prop :=
   ∀ ε > 0, ∃ (N : ℕ), ∀ n > N, |a n - L| < ε
 
+/-- lets us use `rw limit_def` to replace `is_limit a L` with `∀ ε > 0, ∃ (N : ℕ), ...` -/
+lemma limit_def (a : ℕ → ℝ) (L : ℝ) :
+  is_limit a L ↔ ∀ ε > 0, ∃ (N : ℕ), ∀ n > N, |a n - L| < ε := by rfl
+
 /-- define whether a sequence converges to a limit -/
 def is_convergent (a : ℕ → ℝ) : Prop :=
   ∃ (L : ℝ), is_limit a L
+
+/-- lets us use `rw conv_def` to replace `is_convergent a` with `∃ (L : ℝ), is_limit a L` -/
+lemma conv_def (a : ℕ → ℝ) :
+  is_convergent a ↔ ∃ (L : ℝ), is_limit a L := by rfl
 
 /-- define whether x is a supremum -/
 def is_supremum (a : ℕ → ℝ) (x : ℝ) : Prop :=
@@ -55,10 +63,6 @@ def is_supremum (a : ℕ → ℝ) (x : ℝ) : Prop :=
 def is_infimum (a : ℕ → ℝ) (x : ℝ) : Prop :=
   is_lower_bound a x ∧
   ∀ (K : ℝ), is_lower_bound a K → K ≤ x
-
-/-- lets us use `rw limit_def` to replace `is_limit a L` with `∀ ε > 0, ∃ (N : ℕ), ...` -/
-lemma limit_def (a : ℕ → ℝ) (L : ℝ) :
-  is_limit a L ↔ ∀ ε > 0, ∃ (N : ℕ), ∀ n > N, |a n - L| < ε := by rfl
 
 /-
 here we assume the completeness of ℝ, which we would otherwise
@@ -72,12 +76,14 @@ axiom bounded_above_has_supremum (a : ℕ → ℝ) :
 
 /-- Any sequence in ℝ that is bounded below has an infimum in ℝ.
 Taken as an axiom of ℝ due to completeness. -/
-axiom bounded_above_has_infimum (a : ℕ → ℝ):
+axiom bounded_below_has_infimum (a : ℕ → ℝ):
   is_bounded_below a → ∃ (s : ℝ), is_infimum a s
 
 /-- Any monotone increasing sequence in ℝ with a supremum converges to its supremum. -/
 lemma mono_inc_conv_to_sup (a : ℕ → ℝ) (L : ℝ) (hMono : is_monotone_increasing a) (hSup : is_supremum a L) : is_limit a L := by
 {
+  intro ε hε
+
   sorry
 }
 
@@ -94,8 +100,10 @@ theorem monotone_conv (a : ℕ → ℝ) (hBM : is_bounded_monotone a) : is_conve
   cases hBM with
   | inl hInc =>
     rcases hInc with ⟨hMono, hBound⟩
-    sorry
+    rcases bounded_above_has_supremum a hBound with ⟨L, hL_sup⟩
+    exact ⟨L, mono_inc_conv_to_sup a L hMono hL_sup⟩
   | inr hDec =>
     rcases hDec with ⟨hMono, hBound⟩
-    sorry
+    rcases bounded_below_has_infimum a hBound with ⟨L, hL_inf⟩
+    exact ⟨L, mono_dec_conv_to_inf a L hMono hL_inf⟩
 }
