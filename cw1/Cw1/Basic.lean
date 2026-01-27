@@ -1,7 +1,5 @@
 import Mathlib.Tactic
 
-set_option linter.style.commandStart false
-
 /-
   Definitions
 -/
@@ -42,17 +40,9 @@ def is_bounded_monotone (a : ℕ → ℝ) : Prop :=
 def is_limit (a : ℕ → ℝ) (L : ℝ) : Prop :=
   ∀ ε > 0, ∃ (N : ℕ), ∀ n ≥ N, |a n - L| < ε
 
-/-- lets us use `rw limit_def` to replace `is_limit a L` with `∀ ε > 0, ∃ (N : ℕ), ...` -/
-lemma limit_def (a : ℕ → ℝ) (L : ℝ) :
-  is_limit a L ↔ ∀ ε > 0, ∃ (N : ℕ), ∀ n ≥ N, |a n - L| < ε := by rfl
-
 /-- define whether a sequence converges to a limit -/
 def is_convergent (a : ℕ → ℝ) : Prop :=
   ∃ (L : ℝ), is_limit a L
-
-/-- lets us use `rw conv_def` to replace `is_convergent a` with `∃ (L : ℝ), is_limit a L` -/
-lemma conv_def (a : ℕ → ℝ) :
-  is_convergent a ↔ ∃ (L : ℝ), is_limit a L := by rfl
 
 /-- define whether x is a supremum -/
 def is_supremum (a : ℕ → ℝ) (x : ℝ) : Prop :=
@@ -76,7 +66,7 @@ axiom bounded_above_has_supremum (a : ℕ → ℝ) :
 
 /-- Any sequence in ℝ that is bounded below has an infimum in ℝ.
 Taken as an axiom of ℝ due to completeness. -/
-axiom bounded_below_has_infimum (a : ℕ → ℝ):
+axiom bounded_below_has_infimum (a : ℕ → ℝ) :
   is_bounded_below a → ∃ (s : ℝ), is_infimum a s
 
 /-- Any monotone increasing sequence in ℝ with a supremum converges to its supremum. -/
@@ -123,19 +113,21 @@ lemma mono_inc_conv_to_sup (a : ℕ → ℝ) (L : ℝ)
     have hAbsZero : a n - L ≤ 0 := by linarith
     exact abs_of_nonpos hAbsZero
   }
+  -- substitute `|a n - L|` for `-(a n - L)` in goal
   rw [hAbs]
+  -- finish proof with rearrangement
   linarith
 }
 
 /-- Any monotone decreasing sequence in ℝ with an infimum converges to its infimum. -/
 lemma mono_dec_conv_to_inf (a : ℕ → ℝ) (L : ℝ)
-    (hMono : is_monotone_decreasing a) (hSup : is_infimum a L) :
+    (hMono : is_monotone_decreasing a) (hInf : is_infimum a L) :
     is_limit a L := by
 {
   -- introduce `ε > 0`
   intro ε hε
   -- break hSup down into its components
-  rcases hSup with ⟨hLBound, hHighest⟩
+  rcases hInf with ⟨hLBound, hHighest⟩
   -- now, we show that `L + ε` cannot be an upper bound of `a`.
   have hLPlusεNotLower : ¬ is_lower_bound a (L + ε) := by
   {
@@ -163,7 +155,7 @@ lemma mono_dec_conv_to_inf (a : ℕ → ℝ) (L : ℝ)
   -- pick `n > N`
   intro n hn
   -- set up bounds `L ≤ a_n ≤ L + ε`
-  have hLowerThanL : a n ≥ L := hLBound n
+  have hGreaterThanL : a n ≥ L := hLBound n
   have hMonoRaw : a n ≤ a N := hMono N n hn
   -- since `a_n - L ≥ 0`, `|a_n - L| = a_n - L`, removing the `|·|`.
   have hAbs : |a n - L| = a n - L := by
@@ -171,7 +163,9 @@ lemma mono_dec_conv_to_inf (a : ℕ → ℝ) (L : ℝ)
     have hAbsZero : a n - L ≥ 0 := by linarith
     exact abs_of_nonneg hAbsZero
   }
+  -- substitude `|a n - L|` with `a n - L` in goal
   rw [hAbs]
+  -- finish proof with rearrangement
   linarith
 }
 
@@ -181,11 +175,17 @@ theorem monotone_conv (a : ℕ → ℝ) (hBM : is_bounded_monotone a) : is_conve
   -- separate into monotone increasing and decreasing cases
   cases hBM with
   | inl hInc =>
+    -- monotone increasing case
     rcases hInc with ⟨hMono, hBound⟩
+    -- set `L` to be the supremum of `a`
     rcases bounded_above_has_supremum a hBound with ⟨L, hL_sup⟩
+    -- using `mono_inc_conv_to_sup`, we know that `a` must converge to `L`
     exact ⟨L, mono_inc_conv_to_sup a L hMono hL_sup⟩
   | inr hDec =>
+    -- monotone decreasing case
     rcases hDec with ⟨hMono, hBound⟩
+    -- set `L` to be the infimum of `a`
     rcases bounded_below_has_infimum a hBound with ⟨L, hL_inf⟩
+    -- using `mono_dec_conv_to_inf`, we know that `a` must converge to `L`
     exact ⟨L, mono_dec_conv_to_inf a L hMono hL_inf⟩
 }
