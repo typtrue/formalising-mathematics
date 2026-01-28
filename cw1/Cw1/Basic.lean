@@ -126,7 +126,7 @@ lemma mono_dec_conv_to_inf (a : ℕ → ℝ) (L : ℝ)
 {
   -- introduce `ε > 0`
   intro ε hε
-  -- break hSup down into its components
+  -- break hInf down into its components
   rcases hInf with ⟨hLBound, hHighest⟩
   -- now, we show that `L + ε` cannot be an upper bound of `a`.
   have hLPlusεNotLower : ¬ is_lower_bound a (L + ε) := by
